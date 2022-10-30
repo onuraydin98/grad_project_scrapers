@@ -2,10 +2,15 @@ const {
     launchBrowser,
     closeBrowser
 } = require("../helpers");
+const {
+    performance
+  } = require('perf_hooks');
 const baseURL = "https://www.kitapyurdu.com";
 const SCRAPING_SIZE = 3;
 const FETCH_PER_PAGE = 5;
 const PAGE_LIMIT = 100;
+
+let totalFileSize = 0; // Total file size for observing
 
 const getCategories = async () => {
     let page;
@@ -72,7 +77,7 @@ const getCategories = async () => {
     return categoryArray;
 };
 
-const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
+const getBooks = async (scrapingSize = SCRAPING_SIZE, callback = getCategories) => {
     let pages = [];
     let parsedArray = [];
     let categoriesArray = await callback();
@@ -111,12 +116,12 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
                                 div.querySelectorAll('.product-grid > .product-cr').forEach((node) => {
                                     let obj = {
                                         img: node.querySelector('.cover img').src || null,
-                                        rating: node.querySelectorAll('.rating i.active').length * 2,
+                                        rating: node.querySelectorAll('.rating i.active').length,
                                         URL: node.querySelector('.name > a').href || '',
                                         title: node.querySelector('.name > a').title || '',
                                         author: node.querySelector('.author > span')?.textContent.trim() || '',
                                         publisher: node.querySelector('.publisher')?.textContent.trim() || '',
-                                        price: node.querySelector('.price > :not(.price-passive)')?.textContent.split(':')[1].trim() || null,
+                                        price: parseFloat(node.querySelector('.price > :not(.price-passive)')?.textContent.split(':')[1].trim().replace(",",".")) || 0,
                                     }
 
                                     tempArray.push(obj);
@@ -188,6 +193,7 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
                         PAGE_LIMIT
                 );
                 console.log(outputArray);
+                totalFileSize = totalFileSize + outputArray.length;
                 return outputArray;
             })
             .catch((err) => {
@@ -201,7 +207,19 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
     });
 };
 
-(() => {
-    console.log('Self Invoked!');
-    getBooks(undefined, getCategories);
-})();
+// (() => {
+//     console.log('Self Invoked!');
+//     let start = performance.now();
+//     let end;
+  
+//     getBooks().then(() => {
+//       end = performance.now();
+  
+//       console.log(`Call to getBooks took ${((end - start) / 60000).toFixed(6)} minutes, total file => ${totalFileSize}`)
+//     });
+  
+//   })();
+
+module.exports = {
+    init: getBooks,
+}

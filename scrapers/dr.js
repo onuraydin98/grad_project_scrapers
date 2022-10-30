@@ -2,9 +2,14 @@ const {
   launchBrowser,
   closeBrowser
 } = require("../helpers");
+const {
+  performance
+} = require('perf_hooks');
 const baseURL = "https://www.dr.com.tr";
-const SCRAPING_SIZE = 3;
+const SCRAPING_SIZE = 2;
 const PAGE_LIMIT = 45; // Max limit of products for one fetch for this website
+
+let totalFileSize = 0; // Total file size for observing
 
 const getCategories = async () => {
   let page;
@@ -74,7 +79,7 @@ const getCategories = async () => {
   return categoryArray;
 };
 
-const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
+const getBooks = async (scrapingSize = SCRAPING_SIZE, callback = getCategories) => {
   let pages = [];
   const categories = await callback();
   const browser = await launchBrowser();
@@ -159,7 +164,8 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
             PAGE_LIMIT
         );
 
-        console.log(outputArray);
+        //console.log(outputArray);
+        totalFileSize = totalFileSize + outputArray.length;
         return outputArray;
       })
       .catch((err) => {
@@ -173,7 +179,19 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
   });
 };
 
-(() => {
-  console.log('Self Invoked!');
-  getBooks(undefined, getCategories);
-})();
+// (() => {
+//   console.log('Self Invoked!');
+//   let start = performance.now();
+//   let end;
+
+//   getBooks().then(() => {
+//     end = performance.now();
+
+//     console.log(`Call to getBooks took ${((end - start) / 60000).toFixed(6)} minutes, total file => ${totalFileSize}`)
+//   });
+
+// })();
+
+module.exports = {
+  init: getBooks,
+}

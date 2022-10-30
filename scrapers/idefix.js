@@ -2,10 +2,15 @@ const {
   launchBrowser,
   closeBrowser
 } = require("../helpers");
+const {
+  performance
+} = require('perf_hooks');
 const baseURL = "https://www.idefix.com";
 const SCRAPING_SIZE = 3;
 const FETCH_PER_PAGE = 10;
 const PAGE_LIMIT = 60; // Max limit of products for one fetch for this website
+
+let totalFileSize = 0; // Total file size for observing
 
 const getCategories = async () => {
   let page;
@@ -70,7 +75,7 @@ const getCategories = async () => {
   return categoryArray;
 };
 
-const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
+const getBooks = async (scrapingSize = SCRAPING_SIZE, callback = getCategories) => {
   let pages = [];
   let parsedArray = [];
   const categories = await callback();
@@ -148,13 +153,14 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
                   .querySelectorAll(".row .itemlittleProduct .cart-product-box-view")
                   .forEach((node) => {
                     let obj = {
-                      rating: node.querySelector(".product-info .rating").getAttribute("data-rating") || null,
+                      rating: parseInt(node.querySelector(".product-info .rating").getAttribute("data-rating")) || 0,
                       URL: node.querySelector('.product-info .box-title > a').href || '',
                       title: node.querySelector('.product-info .box-title > a').title || '',
                       author: node.querySelector('.product-info .pName > .who').title || '',
                       publisher: node.querySelector('.product-info .manufacturerName > .who2').title || '',
-                      price: node.querySelector('.product-info .box-line-4 > .price').getAttribute('data-price') || null,
-                      img: node.querySelector('.product-image img').getAttribute('data-src') || ''
+                      price: parseFloat(node.querySelector('.product-info .box-line-4 > .price').getAttribute('data-price').replace(",", ".")) || 0,
+                      img: node.querySelector('.product-image img').getAttribute('data-src') || '',
+                      providedURL: "idefix"
                     }
 
                     tempArray.push(obj);
@@ -174,7 +180,7 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
               for (let i = ((totalSoFar - parsedArray[index])); i < Math.ceil(totalSoFar); i++) {
                 for (let j = 1; j <= scrapingSize && paginationFlag; j++) {
                   try {
-                    // Increase scrapingSize for more data
+                    // Increase SCRAPING_SIZE for more data
                     scrapedProductArray = await scrapeProducts(await fetchAPI(j, i));
                     productsArray = productsArray.concat(scrapedProductArray);
                   } catch (e) {
@@ -192,7 +198,8 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
             PAGE_LIMIT
         );
 
-        console.log(outputArray);
+        //console.log(outputArray);
+        totalFileSize = totalFileSize + outputArray.length;
         return outputArray;
       })
       .catch((err) => {
@@ -206,7 +213,17 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE, callback) => {
   });
 };
 
-(() => {
-  console.log('Self Invoked!');
-  getBooks(undefined, getCategories);
-})();
+// (() => {
+//   console.log('Self Invoked!');
+//   let start = performance.now();
+//   let end;
+//   getBooks().then(() => {
+//     end = performance.now();
+
+//     console.log(`Call to getBooks took ${((end - start) / 60000).toFixed(6)} minutes, total file => ${totalFileSize}`)
+//   });
+// })();
+
+module.exports = {
+  init: getBooks,
+}

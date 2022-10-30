@@ -2,10 +2,15 @@ const {
     launchBrowser,
     closeBrowser
 } = require("../helpers");
+const {
+    performance
+} = require('perf_hooks');
 const baseURL = "https://www.bkmkitap.com";
 const SCRAPING_SIZE = 1;
 const FETCH_PER_PAGE = 5;
 const PAGE_LIMIT = 96;
+
+let totalFileSize = 0; // Total file size for observing
 
 /*
     Categories array given manual, corresponding site has no well structured design, some of the categories are main categories, some of not.
@@ -126,7 +131,7 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE) => {
                                         title: node.querySelector('.row:nth-child(2) .row > .box > .row a:first-child').title || '',
                                         author: node.querySelector('.row:nth-child(2) .row > .box > .row a:nth-child(3)').text || '',
                                         publisher: node.querySelector('.row:nth-child(2) .row > .box > .row a:nth-child(2)').title || '',
-                                        price: parseFloat(node.querySelector('.row:nth-child(2) .row .productPrice .currentPrice').textContent.match(regexForPrice).join('.')) || null,
+                                        price: parseFloat(node.querySelector('.row:nth-child(2) .row .productPrice .currentPrice').textContent.match(regexForPrice).join('.')) || 0,
                                     }
 
                                     tempArray.push(obj);
@@ -193,6 +198,7 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE) => {
                         categoriesURLArray,
                         baseURL);
                 console.log(outputArray);
+                totalFileSize = totalFileSize + outputArray.length;
                 return outputArray;
             })
             .catch((err) => {
@@ -206,7 +212,19 @@ const getBooks = async (scrapingSize = SCRAPING_SIZE) => {
     });
 }
 
-(() => {
-    console.log('Self Invoked!');
-    getBooks();
-})();
+// (() => {
+//     console.log('Self Invoked!');
+//     let start = performance.now();
+//     let end;
+
+//     getBooks().then(() => {
+//         end = performance.now();
+
+//         console.log(`Call to getBooks took ${((end - start) / 60000).toFixed(6)} minutes, total file => ${totalFileSize}`)
+//     });
+
+// })();
+
+module.exports = {
+    init: getBooks,
+}

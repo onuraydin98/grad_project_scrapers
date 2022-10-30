@@ -2,9 +2,9 @@ const puppeteer = require("puppeteer");
 
 const launchBrowser = async () => {
     return await puppeteer.launch({
-        headless: false,
+        headless: true,
         devtools: true,
-        slowMo: 100, // Will be removed at last
+        //slowMo: 100, // Will be removed at last
         defaultViewport: null,
     });
 };
