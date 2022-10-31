@@ -1,9 +1,9 @@
-İşlemci	AMD Ryzen 5 3600 6-Core Processor, 3600 Mhz, 6 Çekirdek, 12 Mantıksal İşlemci
-İşletim Sistemi Adı	Microsoft Windows 10 Home
-Yüklü Fiziksel Bellek (RAM)	16.0 GB
+Processor AMD Ryzen 5 3600 6-Core Processor, 3600 Mhz, 6 Çekirdek, 12 Mantıksal İşlemci
+Operating System Name Microsoft Windows 10 Home
+RAM 16.0 GB
 Network Speed 90 - 100 mbps
 
-Idefix Scraper =>
+"Idefix" Scraper =>
 
 SCRAPING_SIZE = 30      Call to getBooks took 0.775629 minutes, total file => 21308
 SCRAPING_SIZE = 100     Call to getBooks took 1.901992 minutes, total file => 54636
