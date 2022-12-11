@@ -1,8 +1,8 @@
 const { launchBrowser, closeBrowser } = require('../helpers')
 const { performance } = require('perf_hooks')
 const baseURL = 'https://www.dr.com.tr'
-const SCRAPING_SIZE = 3
-const PAGE_LIMIT = 45 // Max limit of products for one fetch for this website
+const SCRAPING_SIZE = 7
+const PAGE_LIMIT = 5 // Max limit of products for one fetch for this website
 
 let totalFileSize = 0 // Total file size for observing
 

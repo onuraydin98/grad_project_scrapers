@@ -1,7 +1,7 @@
 const { launchBrowser, closeBrowser } = require('../helpers')
 const { performance } = require('perf_hooks')
 const baseURL = 'https://www.idefix.com'
-const SCRAPING_SIZE = 3
+const SCRAPING_SIZE = 7
 const FETCH_PER_PAGE = 10
 const PAGE_LIMIT = 60 // Max limit of products for one fetch for this website
 
