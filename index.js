@@ -61,7 +61,8 @@ const scrapingJob = async () => {
 
 const groupByTitle = products => {
     return products.reduce((group, product) => {
-        const { title } = product;
+        let { title, author } = product;
+        title = title + '?/' + author
 
         group[title] = group[title] ?? [];
         group[title].push(product);
